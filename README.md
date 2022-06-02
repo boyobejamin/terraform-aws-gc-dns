@@ -9,3 +9,13 @@ Note that a public load balancer cannot be used internally.
 Note that Route53 in GovCloud cannot be publically exposed, it must be private to the account and more specifically a VPC.
 
 Last thing, I'm not creating the NS delegations in this example. More details on delegation can be found here <https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/route-53-concepts.html>
+
+## Workflow
+
+Given a Route53 publically hosted zone exists in AWS Commercial, then Run `aws-app-govcloud` via GitLab CI/CD to provision an app, then run `aws-route53-commercial` to update the publically hosted zone
+
+Bam, app is now available and resolvable privately and publically
+
+## Warning
+
+There is no s3 state management here and there is no creation of a VPC or subnets. This is just sample code.
