@@ -37,6 +37,8 @@ script:
   - export AWS_SECRET_ACCESS_KEY=$COMMERCIAL_SECRET_ACCESS_KEY
   - export AWS_DEFAULT_REGION=$COMMERCIAL_REGION
   - export AWS_REGION=$COMMERCIAL_REGION
+  # Verify current user/role
+  - aws sts get-caller-identity
   # Create Route53 hosted zone and update DNS records (note this is not doing anything with NS records!!!)
   - cd ../aws-route53-commercial
   - terraform apply -auto-approve

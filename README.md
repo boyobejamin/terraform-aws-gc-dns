@@ -2,7 +2,7 @@
 
 This is a sample repository to codify how an entity can update DNS entries for services created in AWS GovCloud in AWS Commercial environments.
 
-In the `aws-app-govcloud` module we create two load balancers, internal and external. In our AWS Commercial and GovCloud accounts we will have Route53 zones to host records for our applications. Within GovCloud, we will create a private hosted zone and resolve all app traffic to the internal load balancers cname. From AWS Commercial, we search (`data`) for an existing public Route53 hosted zone in our account (already purchased) and resolve all app traffic on the public internet to the public load balancer.
+In the `aws-app-govcloud` module we create two load balancers, internal and external to load balance our services within the VPC and from the public internet. In our AWS Commercial and GovCloud accounts we will have Route53 zones to host records for our applications. Within GovCloud (via `aws-app-govcloud`), we will create a private hosted zone and resolve all app traffic to the internal load balancers cname. From AWS Commercial (via `aws-route53-commercial`), we search (`data`) for an existing public Route53 hosted zone in our account (already purchased) and resolve all app traffic on the public internet to the public load balancer.
 
 Note that a public load balancer cannot be used internally.
 
