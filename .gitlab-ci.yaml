@@ -1,0 +1,43 @@
+---
+image:
+  name: registry.gitlab.com/gitlab-org/terraform-images/releases/terraform:1.1.9
+
+variables:
+  GOVCLOUD_ACCESS_KEY_ID: $GOVCLOUD_ACCESS_KEY_ID
+  GOVCLOUD_SECRET_ACCESS_KEY: $GOVCLOUD_SECRET_ACCESS_KEY
+  GOVCLOUD_REGION: $GOVCLOUD_REGION
+  COMMERCIAL_ACCESS_KEY_ID: $COMMERCIAL_ACCESS_KEY_ID
+  COMMERCIAL_SECRET_ACCESS_KEY: $COMMERCIAL_SECRET_ACCESS_KEY
+  COMMERCIAL_REGION: $COMMERCIAL_REGION
+
+script:
+  # Logout of AWS entirely
+  - unset AWS_ACCESS_KEY_ID
+  - unset AWS_SECRET_ACCESS_KEY
+  - unset AWS_DEFAULT_REGION
+  - unset AWS_REGION
+  # Login to AWS GovCloud
+  - export AWS_ACCESS_KEY_ID=$GOVCLOUD_ACCESS_KEY_ID
+  - export AWS_SECRET_ACCESS_KEY=$GOVCLOUD_SECRET_ACCESS_KEY
+  - export AWS_DEFAULT_REGION=$GOVCLOUD_REGION
+  - export AWS_REGION=$GOVCLOUD_REGION
+  # Verify current user/role
+  - aws sts get-caller-identity
+  # Create private resources in GovCloud; our external resource is the External Load Balancer
+  - cd aws-app-govcloud
+  - terraform init
+  - terraform apply -auto-approve
+  # Let's see what's created
+  - terraform output
+  # Looking at the output, `aws_private_lb.dns_name`, is the DNS name from the AWS LB that I want to publically serve from Route53
+  # Let's capture that in an environment variable
+  - export TF_VAR_external_lb_private_dns_name=$(terraform output aws_private_lb.dns_name -raw)
+  # Switch to AWS Commercial cloud
+  - export AWS_ACCESS_KEY_ID=$COMMERCIAL_ACCESS_KEY_ID
+  - export AWS_SECRET_ACCESS_KEY=$COMMERCIAL_SECRET_ACCESS_KEY
+  - export AWS_DEFAULT_REGION=$COMMERCIAL_REGION
+  - export AWS_REGION=$COMMERCIAL_REGION
+  # Create Route53 hosted zone and update DNS records (note this is not doing anything with NS records!!!)
+  - cd ../aws-route53-commercial
+  - terraform apply -auto-approve
+  - terraform output
